@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>EduRed | PhET Simulations - Proyecto de Grado UNAD</title>
+    <style>
+        /* ==================== CSS RESET & GLOBAL ==================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background: #eef4fa;
+            color: #1a2c3e;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ==================== LAYOUT PRINCIPAL (MENU LATERAL + CONTENIDO) ==================== */
+        .app-container {
+            display: flex;
+            height: 100vh;
+            width: 100%;
+        }
+
+        /* ---------- MENÚ LATERAL ---------- */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #0f2b3d 0%, #123e57 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            transition: all 0.2s;
+        }
+
+        .logo-area {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid #2c6a8c;
+            margin-bottom: 1.5rem;
+        }
+
+        .logo-area h1 {
+            font-size: 1.8rem;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo-area p {
+            font-size: 0.75rem;
+            opacity: 0.8;
+            margin-top: 6px;
+        }
+
+        .nav-menu {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            padding: 0 1rem;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: none;
+            color: #eef4fc;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 0.85rem 1.2rem;
+            border-radius: 16px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-btn i {
+            font-style: normal;
+            font-weight: normal;
+            font-size: 1.3rem;
+        }
+
+        .nav-btn:hover {
+            background: #2c7da0;
+            transform: translateX(5px);
+        }
+
+        .nav-btn.active {
+            background: #2c7da0;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            border-left: 4px solid #ffd966;
+        }
+
+        .footer-side {
+            padding: 1.5rem;
+            font-size: 0.7rem;
+            text-align: center;
+            border-top: 1px solid #2c6a8c;
+            margin-top: auto;
+        }
+
+        /* ---------- CONTENIDO PRINCIPAL ---------- */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.8rem 2rem;
+            background: #f0f7ff;
+        }
+
+        /* Tarjeta de bienvenida */
+        .welcome-card {
+            background: white;
+            border-radius: 28px;
+            padding: 1.8rem 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+            border-left: 8px solid #2c7da0;
+        }
+
+        /* Grid de materias (vista inicio) */
+        .subjects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.8rem;
+            margin: 1.5rem 0;
+        }
+
+        .subject-card {
+            background: white;
+            border-radius: 24px;
+            padding: 1.8rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.03);
+            border: 1px solid #deecf3;
+        }
+
+        .subject-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 16px 24px rgba(0, 0, 0, 0.1);
+            border-color: #bdd4e4;
+        }
+
+        .subject-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Área de simulación */
+        .simulation-area {
+            background: white;
+            border-radius: 28px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+            margin: 1rem 0;
+            border: 1px solid #cde0ea;
+        }
+
+        .sim-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            border-bottom: 2px solid #e2eff7;
+            padding-bottom: 0.8rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 520px;
+            border-radius: 20px;
+            overflow: hidden;
+            background: #fafcff;
+            border: 1px solid #cde0ea;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .guia-pedagogica {
+            background: #eef5fc;
+            padding: 1rem;
+            border-radius: 20px;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        /* Sección Notas y Reportes */
+        .grades-card {
+            background: white;
+            border-radius: 28px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-notes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            background: #f8fbfe;
+            padding: 1rem;
+            border-radius: 24px;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 140px;
+        }
+
+        input, select {
+            padding: 0.6rem 1rem;
+            border-radius: 60px;
+            border: 1px solid #cbdde6;
+            width: 100%;
+        }
+
+        button {
+            background: #2c7da0;
+            color: white;
+            border: none;
+            padding: 0.6rem 1.4rem;
+            border-radius: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button.secondary {
+            background: #3c6e71;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 0.8rem;
+            border-bottom: 1px solid #dce7ef;
+        }
+
+        th {
+            background: #e9f1f7;
+        }
+
+        .btn-small {
+            background: #c1573a;
+            padding: 0.3rem 0.8rem;
+            font-size: 0.75rem;
+        }
+
+        @media (max-width: 700px) {
+            .sidebar { width: 220px; }
+            .iframe-container { height: 320px; }
+            .main-content { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <!-- MENU LATERAL -->
+    <aside class="sidebar">
+        <div class="logo-area">
+            <h1>📘 EduRed</h1>
+            <p>Centro de Simulaciones PhET<br>TRL5 - Proyecto Grado UNAD</p>
+        </div>
+        <div class="nav-menu">
+            <button class="nav-btn active" data-section="inicio">🏠 Inicio</button>
+            <button class="nav-btn" data-section="fisica">⚛️ Física</button>
+            <button class="nav-btn" data-section="quimica">🧪 Química</button>
+            <button class="nav-btn" data-section="matematicas">📐 Matemáticas</button>
+            <button class="nav-btn" data-section="notas">📊 Notas y Reporte</button>
+        </div>
+        <div class="footer-side">
+            <p>Metodología ágil Scrum | Impacto educativo La Paz, Cesar 2026</p>
+        </div>
+    </aside>
+
+    <!-- CONTENIDO DINÁMICO -->
+    <main class="main-content" id="mainDynamicContent">
+        <!-- Aquí se inyectará todo el contenido mediante JS -->
+        <div id="dynamicRender"></div>
+    </main>
+</div>
+
+<script>
+    // ======================== DATOS DE SIMULACIONES PHET (HTML5 / OFFLINE CAPABLE) ========================
+    const simulacionesDB = {
+        fisica: {
+            titulo: "⚛️ Formas y Cambios de Energía",
+            url: "https://phet.colorado.edu/sims/html/energy-forms-and-changes/latest/energy-forms-and-changes_es.html",
+            desc: "Explora transformaciones de energía, desde calor hasta movimiento. Ideal para grados 6° a 9°, alineado con DBA de ciencias naturales."
+        },
+        quimica: {
+            titulo: "🧪 Reactivos, Productos y Restos",
+            url: "https://phet.colorado.edu/sims/html/reactants-products-and-leftovers/latest/reactants-products-and-leftovers_es.html",
+            desc: "Aprende sobre reacciones químicas, estequiometría y conservación de la masa. Manipula reactivos y analiza productos."
+        },
+        matematicas: {
+            titulo: "📐 Fracciones: Igualdad y Comparación",
+            url: "https://phet.colorado.edu/sims/html/fraction-matcher/latest/fraction-matcher_es.html",
+            desc: "Compara fracciones visualmente mediante gráficos interactivos. Fortalece competencias numéricas en básica secundaria."
+        }
+    };
+
+    // Sistema de calificaciones (localStorage)
+    let estudiantesData = [
+        { id: 1, nombre: "ROBERTO LAGOS", taller: 60, examen: 100, ponderado: 84.00 },
+        { id: 2, nombre: "PEDRO JUSTO", taller: 100, examen: 80, ponderado: 88.00 },
+        { id: 3, nombre: "RODRIGO", taller: 90, examen: 95, ponderado: 93.00 }
+    ];
+
+    // Helper cálculos
+    function calcularPonderado(taller, examen) {
+        return (taller * 0.4 + examen * 0.6).toFixed(2);
+    }
+
+    function actualizarPonderadoEstudiantes() {
+        estudiantesData.forEach(est => {
+            est.ponderado = parseFloat(calcularPonderado(est.taller, est.examen));
+        });
+    }
+
+    function guardarNotasLocal() {
+        actualizarPonderadoEstudiantes();
+        localStorage.setItem('eduRed_notas_app', JSON.stringify(estudiantesData));
+        alert("✅ Calificaciones guardadas en el almacenamiento local del navegador.");
+    }
+
+    function cargarNotasLocal() {
+        const stored = localStorage.getItem('eduRed_notas_app');
+        if(stored) {
+            estudiantesData = JSON.parse(stored);
+        }
+        actualizarPonderadoEstudiantes();
+    }
+
+    function enviarReporteProfesor() {
+        const promedio = (estudiantesData.reduce((acc, e) => acc + parseFloat(e.ponderado), 0) / estudiantesData.length).toFixed(2);
+        console.log("📤 REPORTE DOCENTE - EduRed", {
+            fecha: new Date().toLocaleString(),
+            estudiantes: estudiantesData,
+            promedioGrupo: promedio,
+            total: estudiantesData.length
+        });
+        alert(`📧 Reporte enviado al profesor (simulación pedagógica). Promedio grupo: ${promedio} pts`);
+    }
+
+    // Renderizar tabla de notas
+    function renderizarTablaNotas() {
+        const tbody = document.getElementById('gradesTableBody');
+        if(!tbody) return;
+        tbody.innerHTML = "";
+        estudiantesData.forEach((est, idx) => {
+            const row = tbody.insertRow();
+            row.insertCell(0).textContent = est.nombre;
+            // taller editable
+            const tdTaller = row.insertCell(1);
+            const inputTaller = document.createElement('input');
+            inputTaller.type = 'number';
+            inputTaller.value = est.taller;
+            inputTaller.style.width = '80px';
+            inputTaller.addEventListener('change', (e) => {
+                let val = parseInt(e.target.value);
+                if(isNaN(val)) val = 0;
+                estudiantesData[idx].taller = val;
+                estudiantesData[idx].ponderado = parseFloat(calcularPonderado(estudiantesData[idx].taller, estudiantesData[idx].examen));
+                renderizarTablaNotas();
+            });
+            tdTaller.appendChild(inputTaller);
+
+            const tdExamen = row.insertCell(2);
+            const inputExamen = document.createElement('input');
+            inputExamen.type = 'number';
+            inputExamen.value = est.examen;
+            inputExamen.style.width = '80px';
+            inputExamen.addEventListener('change', (e) => {
+                let val = parseInt(e.target.value);
+                if(isNaN(val)) val = 0;
+                estudiantesData[idx].examen = val;
+                estudiantesData[idx].ponderado = parseFloat(calcularPonderado(estudiantesData[idx].taller, estudiantesData[idx].examen));
+                renderizarTablaNotas();
+            });
+            tdExamen.appendChild(inputExamen);
+
+            row.insertCell(3).textContent = parseFloat(est.ponderado).toFixed(2);
+            const tdAccion = row.insertCell(4);
+            const btnEliminar = document.createElement('button');
+            btnEliminar.textContent = "Eliminar";
+            btnEliminar.className = "btn-small";
+            btnEliminar.style.background = "#b3413b";
+            btnEliminar.onclick = () => {
+                estudiantesData.splice(idx, 1);
+                renderizarTablaNotas();
+            };
+            tdAccion.appendChild(btnEliminar);
+        });
+    }
+
+    function agregarNuevoEstudiante() {
+        const nombre = document.getElementById('newNombre')?.value.trim();
+        const taller = parseInt(document.getElementById('newTaller')?.value);
+        const examen = parseInt(document.getElementById('newExamen')?.value);
+        if(!nombre) { alert("Ingrese el nombre del estudiante"); return; }
+        if(isNaN(taller) || isNaN(examen)) { alert("Notas válidas requeridas"); return; }
+        const nuevoId = estudiantesData.length + 1;
+        const ponderado = calcularPonderado(taller, examen);
+        estudiantesData.push({
+            id: nuevoId,
+            nombre: nombre.toUpperCase(),
+            taller: taller,
+            examen: examen,
+            ponderado: parseFloat(ponderado)
+        });
+        document.getElementById('newNombre').value = "";
+        document.getElementById('newTaller').value = "80";
+        document.getElementById('newExamen').value = "80";
+        renderizarTablaNotas();
+        alert(`Estudiante ${nombre} agregado al registro.`);
+    }
+
+    function limpiarBaseLocal() {
+        if(confirm("⚠️ Eliminará TODOS los registros locales. ¿Continuar?")) {
+            estudiantesData = [];
+            localStorage.removeItem('eduRed_notas_app');
+            renderizarTablaNotas();
+            alert("Base de datos local limpiada.");
+        }
+    }
+
+    // ============== RENDERIZADO DE VISTAS SEGÚN SECCIÓN ==============
+    let currentSection = "inicio";
+    let simulacionActiva = null;   // 'fisica', 'quimica', 'matematicas'
+
+    function renderVista() {
+        const root = document.getElementById('dynamicRender');
+        if(!root) return;
+
+        if(currentSection === "inicio") {
+            root.innerHTML = `
+                <div class="welcome-card">
+                    <h2>🎓 ¡Bienvenido a EduRed - Centro de Simulaciones Educativas!</h2>
+                    <p>Implementamos un prototipo tecnopedagógico basado en <strong>PhET Interactive Simulations</strong> para transformar el aprendizaje en básica secundaria. Este desarrollo corresponde al proyecto de grado UNAD, fase 4, con nivel de maduración TRL5 y metodología ágil Scrum.</p>
+                    <h3>📌 Instrucciones de uso:</h3>
+                    <ul>
+                        <li>Selecciona <strong>Física, Química o Matemáticas</strong> desde el menú lateral.</li>
+                        <li>Interactúa con la simulación, modifica variables y registra tus observaciones.</li>
+                        <li>En la sección <strong>Notas y Reporte</strong> podrás gestionar calificaciones (Taller 40% - Examen 60%) y enviar reporte al docente.</li>
+                        <li>Este prototipo funcional es parte de la intervención en instituciones educativas de La Paz, Cesar (2026).</li>
+                    </ul>
+                    <p>🔬 <strong>Simulaciones destacadas:</strong> cada materia cuenta con un laboratorio virtual probado pedagógicamente.</p>
+                </div>
+                <div class="subjects-grid">
+                    <div class="subject-card" data-sim="fisica">
+                        <div class="subject-icon">⚛️</div>
+                        <h3>Física</h3>
+                        <p>Energía · Movimiento · Calor</p>
+                    </div>
+                    <div class="subject-card" data-sim="quimica">
+                        <div class="subject-icon">🧪</div>
+                        <h3>Química</h3>
+                        <p>Reacciones · Reactivos · Productos</p>
+                    </div>
+                    <div class="subject-card" data-sim="matematicas">
+                        <div class="subject-icon">📐</div>
+                        <h3>Matemáticas</h3>
+                        <p>Fracciones · Comparación visual</p>
+                    </div>
+                </div>
+                ${simulacionActiva ? renderSimulador() : '<div style="text-align:center; margin: 1rem;">✨ Selecciona una materia para iniciar la simulación educativa</div>'}
+            `;
+            // eventos tarjetas
+            document.querySelectorAll('.subject-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    const sim = card.getAttribute('data-sim');
+                    if(sim) {
+                        simulacionActiva = sim;
+                        currentSection = sim;
+                        actualizarBotonActivo(sim);
+                        renderVista();
+                    }
+                });
+            });
+        } 
+        else if (currentSection === "fisica" || currentSection === "quimica" || currentSection === "matematicas") {
+            simulacionActiva = currentSection;
+            root.innerHTML = renderSimulador();
+        } 
+        else if (currentSection === "notas") {
+            simulacionActiva = null;
+            root.innerHTML = `
+                <div class="grades-card">
+                    <h2>📊 Registro de Calificaciones - Rúbrica analítica</h2>
+                    <p>Evaluación formativa: Taller (40%) + Examen práctico (60%). Basado en DBA Ministerio de Educación.</p>
+                    <div class="form-notes">
+                        <div class="form-group"><label>Nombre alumno</label><input type="text" id="newNombre" placeholder="Ej: Camila Suárez"></div>
+                        <div class="form-group"><label>Taller (40%)</label><input type="number" id="newTaller" value="80"></div>
+                        <div class="form-group"><label>Examen (60%)</label><input type="number" id="newExamen" value="80"></div>
+                        <button id="agregarEstBtn">➕ Agregar</button>
+                    </div>
+                    <div style="display: flex; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                        <button id="guardarLocalBtn">💾 Guardar localmente</button>
+                        <button id="reporteProfesorBtn" class="secondary">✉️ Enviar al Profesor</button>
+                        <button id="limpiarDBBtn" style="background:#d9852b;">🗑️ Limpiar datos</button>
+                    </div>
+                    <table>
+                        <thead><tr><th>Alumno</th><th>Taller (40%)</th><th>Examen (60%)</th><th>Ponderado</th><th>Acciones</th></tr></thead>
+                        <tbody id="gradesTableBody"></tbody>
+                    </table>
+                    <p style="margin-top:1rem;font-size:0.8rem;">📁 Datos almacenados localmente. Compatible con seguimiento TRL5.</p>
+                </div>
+            `;
+            renderizarTablaNotas();
+            document.getElementById('agregarEstBtn')?.addEventListener('click', agregarNuevoEstudiante);
+            document.getElementById('guardarLocalBtn')?.addEventListener('click', guardarNotasLocal);
+            document.getElementById('reporteProfesorBtn')?.addEventListener('click', enviarReporteProfesor);
+            document.getElementById('limpiarDBBtn')?.addEventListener('click', limpiarBaseLocal);
+        }
+
+        // Actualizar clase activa en menú
+        actualizarBotonActivo(currentSection);
+    }
+
+    function renderSimulador() {
+        if(!simulacionActiva || !simulacionesDB[simulacionActiva]) {
+            return `<div class="simulation-area"><p>Seleccione una simulación válida desde el menú lateral.</p></div>`;
+        }
+        const sim = simulacionesDB[simulacionActiva];
+        return `
+            <div class="simulation-area">
+                <div class="sim-header">
+                    <h3>🔬 ${sim.titulo}</h3>
+                    <button id="cerrarSimuladorBtn" style="background:#557c8f;">✖ Cerrar simulación</button>
+                </div>
+                <div class="iframe-container">
+                    <iframe src="${sim.url}" title="Simulación PhET - ${sim.titulo}" allow="fullscreen" loading="lazy"></iframe>
+                </div>
+                <div class="guia-pedagogica">
+                    <strong>📖 Guía pedagógica integrada (Fase 4 - Proyecto):</strong> ${sim.desc}<br>
+                    ✔ <strong>Metodología activa:</strong> explora la simulación (10 min), responde las preguntas orientadoras en tu cuaderno, luego comparte con tus compañeros. <br>
+                    📌 <strong>Competencias:</strong> Pensamiento crítico, indagación científica y trabajo colaborativo.
+                </div>
+            </div>
+        `;
+    }
+
+    function actualizarBotonActivo(seccion) {
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            const btnSection = btn.getAttribute('data-section');
+            if(btnSection === seccion) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+    }
+
+    // EVENTOS DEL MENÚ LATERAL
+    function initMenuEvents() {
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const section = btn.getAttribute('data-section');
+                if(section === "inicio") {
+                    simulacionActiva = null;
+                    currentSection = "inicio";
+                } else if (section === "fisica" || section === "quimica" || section === "matematicas") {
+                    simulacionActiva = section;
+                    currentSection = section;
+                } else if (section === "notas") {
+                    simulacionActiva = null;
+                    currentSection = "notas";
+                }
+                renderVista();
+            });
+        });
+    }
+
+    // Delegación de eventos para cerrar simulación (dinámico)
+    document.addEventListener('click', (e) => {
+        if(e.target && e.target.id === 'cerrarSimuladorBtn') {
+            simulacionActiva = null;
+            currentSection = "inicio";
+            renderVista();
+        }
+    });
+
+    // Inicialización
+    function startApp() {
+        cargarNotasLocal();
+        initMenuEvents();
+        renderVista(); // vista por defecto Inicio
+    }
+    startApp();
+</script>
+</body>
+</html>
